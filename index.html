@@ -31,17 +31,18 @@
       // 1️⃣ Connect to Supabase
       const SUPABASE_URL = 'https://muawnjdvgsprgxhkccyz.supabase.co';
       const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11YXduamR2Z3Nwcmd4aGtjY3l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU1NzIyMDMsImV4cCI6MjA4MTE0ODIwM30.PXfs7s5acjjUO5LIPUp9wZBKwzZYC1DQjmzDCRdRtx4';
-      const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       // 2️⃣ Grab token from URL
       const urlParams = new URLSearchParams(window.location.search);
       const accessToken = urlParams.get('token');
 
+      const messageDiv = document.getElementById('message');
+
       // 3️⃣ Handle button click
       document.getElementById('reset-btn').onclick = async () => {
         const newPassword = document.getElementById('new-password').value;
         const confirmPassword = document.getElementById('confirm-password').value;
-        const messageDiv = document.getElementById('message');
 
         messageDiv.style.color = 'red';
 
@@ -60,11 +61,18 @@
           return;
         }
 
-        // 4️⃣ Update password in Supabase
-        const { data, error } = await supabaseClient.auth.updateUser({
-          accessToken,
-          password: newPassword
+        // 4️⃣ Set session with token
+        const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+          access_token: accessToken
         });
+
+        if (sessionError) {
+          messageDiv.textContent = sessionError.message;
+          return;
+        }
+
+        // 5️⃣ Update password
+        const { data, error } = await supabase.auth.updateUser({ password: newPassword });
 
         if (error) {
           messageDiv.textContent = error.message;
