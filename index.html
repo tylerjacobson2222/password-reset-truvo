@@ -27,51 +27,53 @@
   <!-- Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
-    // 1️⃣ Connect to Supabase
-    const SUPABASE_URL = 'https://muawnjdvgsprgxhkccyz.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11YXduamR2Z3Nwcmd4aGtjY3l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU1NzIyMDMsImV4cCI6MjA4MTE0ODIwM30.PXfs7s5acjjUO5LIPUp9wZBKwzZYC1DQjmzDCRdRtx4'; // replace with your anon key
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    window.addEventListener('DOMContentLoaded', () => {
+      // 1️⃣ Connect to Supabase
+      const SUPABASE_URL = 'https://muawnjdvgsprgxhkccyz.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11YXduamR2Z3Nwcmd4aGtjY3l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU1NzIyMDMsImV4cCI6MjA4MTE0ODIwM30.PXfs7s5acjjUO5LIPUp9wZBKwzZYC1DQjmzDCRdRtx4';
+      const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // 2️⃣ Grab access_token from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const accessToken = urlParams.get('token');
+      // 2️⃣ Grab token from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const accessToken = urlParams.get('token');
 
-    // 3️⃣ Handle button click
-    document.getElementById('reset-btn').onclick = async () => {
-      const newPassword = document.getElementById('new-password').value;
-      const confirmPassword = document.getElementById('confirm-password').value;
-      const messageDiv = document.getElementById('message');
+      // 3️⃣ Handle button click
+      document.getElementById('reset-btn').onclick = async () => {
+        const newPassword = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+        const messageDiv = document.getElementById('message');
 
-      messageDiv.style.color = 'red';
+        messageDiv.style.color = 'red';
 
-      if (!newPassword || !confirmPassword) {
-        messageDiv.textContent = 'Please fill out both fields.';
-        return;
-      }
+        if (!newPassword || !confirmPassword) {
+          messageDiv.textContent = 'Please fill out both fields.';
+          return;
+        }
 
-      if (newPassword !== confirmPassword) {
-        messageDiv.textContent = 'Passwords do not match.';
-        return;
-      }
+        if (newPassword !== confirmPassword) {
+          messageDiv.textContent = 'Passwords do not match.';
+          return;
+        }
 
-      if (!accessToken) {
-        messageDiv.textContent = 'Invalid or missing token.';
-        return;
-      }
+        if (!accessToken) {
+          messageDiv.textContent = 'Invalid or missing token.';
+          return;
+        }
 
-      // 4️⃣ Update password in Supabase
-      const { data, error } = await supabase.auth.updateUser({
-        accessToken,
-        password: newPassword
-      });
+        // 4️⃣ Update password in Supabase
+        const { data, error } = await supabaseClient.auth.updateUser({
+          accessToken,
+          password: newPassword
+        });
 
-      if (error) {
-        messageDiv.textContent = error.message;
-      } else {
-        messageDiv.style.color = 'green';
-        messageDiv.textContent = 'Password updated successfully!';
-      }
-    };
+        if (error) {
+          messageDiv.textContent = error.message;
+        } else {
+          messageDiv.style.color = 'green';
+          messageDiv.textContent = 'Password updated successfully!';
+        }
+      };
+    });
   </script>
 
 </body>
