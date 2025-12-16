@@ -30,7 +30,7 @@
     // 1️⃣ Connect to Supabase
     const SUPABASE_URL = 'https://muawnjdvgsprgxhkccyz.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11YXduamR2Z3Nwcmd4aGtjY3l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU1NzIyMDMsImV4cCI6MjA4MTE0ODIwM30.PXfs7s5acjjUO5LIPUp9wZBKwzZYC1DQjmzDCRdRtx4'; // replace with your anon key
-    const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // 2️⃣ Grab access_token from URL
     const urlParams = new URLSearchParams(window.location.search);
