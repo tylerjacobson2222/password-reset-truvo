@@ -34,7 +34,7 @@
 
     // 2️⃣ Grab access_token from URL
     const urlParams = new URLSearchParams(window.location.search);
-    const accessToken = urlParams.get('access_token');
+    const accessToken = urlParams.get('token');
 
     // 3️⃣ Handle button click
     document.getElementById('reset-btn').onclick = async () => {
