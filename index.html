@@ -24,70 +24,62 @@
     <div id="message"></div>
   </div>
 
-  <!-- 1️⃣ Load Supabase JS library -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+  <!-- Supabase v2 as ES Module -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.37.0/dist/module/supabase.js';
 
-  <script>
-    window.addEventListener('DOMContentLoaded', () => {
-      const SUPABASE_URL = 'https://muawnjdvgsprgxhkccyz.supabase.co';
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11YXduamR2Z3Nwcmd4aGtjY3l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU1NzIyMDMsImV4cCI6MjA4MTE0ODIwM30.PXfs7s5acjjUO5LIPUp9wZBKwzZYC1DQjmzDCRdRtx4';
+    // 1️⃣ Initialize Supabase
+    const SUPABASE_URL = 'https://muawnjdvgsprgxhkccyz.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11YXduamR2Z3Nwcmd4aGtjY3l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU1NzIyMDMsImV4cCI6MjA4MTE0ODIwM30.PXfs7s5acjjUO5LIPUp9wZBKwzZYC1DQjmzDCRdRtx4';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      // 2️⃣ Initialize Supabase client
-      const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const messageDiv = document.getElementById('message');
 
-      // 3️⃣ Grab token from URL
-      const urlParams = new URLSearchParams(window.location.search);
-      const accessToken = urlParams.get('token');
+    // 2️⃣ Get token from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const accessToken = urlParams.get('token');
 
-      const messageDiv = document.getElementById('message');
+    // 3️⃣ Handle button click
+    document.getElementById('reset-btn').addEventListener('click', async () => {
+      const newPassword = document.getElementById('new-password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
 
-      // 4️⃣ Handle button click
-      document.getElementById('reset-btn').onclick = async () => {
-        const newPassword = document.getElementById('new-password').value;
-        const confirmPassword = document.getElementById('confirm-password').value;
+      messageDiv.style.color = 'red';
 
-        messageDiv.style.color = 'red';
+      if (!newPassword || !confirmPassword) {
+        messageDiv.textContent = 'Please fill out both fields.';
+        return;
+      }
 
-        if (!newPassword || !confirmPassword) {
-          messageDiv.textContent = 'Please fill out both fields.';
-          return;
-        }
+      if (newPassword !== confirmPassword) {
+        messageDiv.textContent = 'Passwords do not match.';
+        return;
+      }
 
-        if (newPassword !== confirmPassword) {
-          messageDiv.textContent = 'Passwords do not match.';
-          return;
-        }
+      if (!accessToken) {
+        messageDiv.textContent = 'Invalid or missing token.';
+        return;
+      }
 
-        if (!accessToken) {
-          messageDiv.textContent = 'Invalid or missing token.';
-          return;
-        }
+      // 4️⃣ Set session using the token
+      const { error: sessionError } = await supabase.auth.setSession({ access_token: accessToken });
+      if (sessionError) {
+        messageDiv.textContent = sessionError.message;
+        return;
+      }
 
-        // 5️⃣ Set session with access token
-        const { error: sessionError } = await supabase.auth.setSession({
-          access_token: accessToken
-        });
-
-        if (sessionError) {
-          messageDiv.textContent = sessionError.message;
-          return;
-        }
-
-        // 6️⃣ Update password
-        const { data, error } = await supabase.auth.updateUser({ password: newPassword });
-
-        if (error) {
-          messageDiv.textContent = error.message;
-        } else {
-          messageDiv.style.color = 'green';
-          messageDiv.textContent = 'Password updated successfully! Redirecting to login...';
-
-          // Optional: redirect to login page after 3 seconds
-          setTimeout(() => {
-            window.location.href = '/login'; // change this to your Truvo login URL
-          }, 3000);
-        }
-      };
+      // 5️⃣ Update password
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) {
+        messageDiv.textContent = error.message;
+      } else {
+        messageDiv.style.color = 'green';
+        messageDiv.textContent = 'Password updated successfully! Redirecting to login...';
+        // Optional: redirect after 3 seconds
+        setTimeout(() => {
+          window.location.href = '/login'; // replace with your login page
+        }, 3000);
+      }
     });
   </script>
 
