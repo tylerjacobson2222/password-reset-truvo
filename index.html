@@ -24,22 +24,24 @@
     <div id="message"></div>
   </div>
 
-  <!-- Supabase JS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <!-- 1️⃣ Load Supabase JS library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+
   <script>
     window.addEventListener('DOMContentLoaded', () => {
-      // 1️⃣ Connect to Supabase
       const SUPABASE_URL = 'https://muawnjdvgsprgxhkccyz.supabase.co';
       const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11YXduamR2Z3Nwcmd4aGtjY3l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU1NzIyMDMsImV4cCI6MjA4MTE0ODIwM30.PXfs7s5acjjUO5LIPUp9wZBKwzZYC1DQjmzDCRdRtx4';
+
+      // 2️⃣ Initialize Supabase client
       const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      // 2️⃣ Grab token from URL
+      // 3️⃣ Grab token from URL
       const urlParams = new URLSearchParams(window.location.search);
       const accessToken = urlParams.get('token');
 
       const messageDiv = document.getElementById('message');
 
-      // 3️⃣ Handle button click
+      // 4️⃣ Handle button click
       document.getElementById('reset-btn').onclick = async () => {
         const newPassword = document.getElementById('new-password').value;
         const confirmPassword = document.getElementById('confirm-password').value;
@@ -61,8 +63,8 @@
           return;
         }
 
-        // 4️⃣ Set session with token
-        const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+        // 5️⃣ Set session with access token
+        const { error: sessionError } = await supabase.auth.setSession({
           access_token: accessToken
         });
 
@@ -71,14 +73,19 @@
           return;
         }
 
-        // 5️⃣ Update password
+        // 6️⃣ Update password
         const { data, error } = await supabase.auth.updateUser({ password: newPassword });
 
         if (error) {
           messageDiv.textContent = error.message;
         } else {
           messageDiv.style.color = 'green';
-          messageDiv.textContent = 'Password updated successfully!';
+          messageDiv.textContent = 'Password updated successfully! Redirecting to login...';
+
+          // Optional: redirect to login page after 3 seconds
+          setTimeout(() => {
+            window.location.href = '/login'; // change this to your Truvo login URL
+          }, 3000);
         }
       };
     });
