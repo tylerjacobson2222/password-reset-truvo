@@ -1,46 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reset Password</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 2rem; background: #f9f9f9; }
+    h1 { text-align: center; }
+    .container { max-width: 400px; margin: 0 auto; background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    input { width: 100%; padding: 0.8rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 4px; }
+    button { width: 100%; padding: 0.8rem; background: #0070f3; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #005ecb; }
+    #message { margin-top: 1rem; text-align: center; color: red; }
+  </style>
 </head>
 <body>
-  <h2>Reset Your Password</h2>
-  <input type="password" id="new-password" placeholder="New Password" /><br/><br/>
-  <input type="password" id="confirm-password" placeholder="Confirm Password" /><br/><br/>
-  <button id="reset-btn">Update Password</button>
-  <p id="message"></p>
 
+  <h1>Reset Password</h1>
+  <div class="container">
+    <input type="password" id="new-password" placeholder="New Password">
+    <input type="password" id="confirm-password" placeholder="Confirm Password">
+    <button id="reset-btn">Update Password</button>
+    <div id="message"></div>
+  </div>
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
-    // 1️⃣ Replace with your Supabase project info
+    // 1️⃣ Connect to Supabase
     const SUPABASE_URL = 'https://muawnjdvgsprgxhkccyz.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11YXduamR2Z3Nwcmd4aGtjY3l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU1NzIyMDMsImV4cCI6MjA4MTE0ODIwM30.PXfs7s5acjjUO5LIPUp9wZBKwzZYC1DQjmzDCRdRtx4';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11YXduamR2Z3Nwcmd4aGtjY3l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU1NzIyMDMsImV4cCI6MjA4MTE0ODIwM30.PXfs7s5acjjUO5LIPUp9wZBKwzZYC1DQjmzDCRdRtx4'; // replace with your anon key
     const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // 2️⃣ Extract the access token from the URL query string
+    // 2️⃣ Grab access_token from URL
     const urlParams = new URLSearchParams(window.location.search);
     const accessToken = urlParams.get('access_token');
 
+    // 3️⃣ Handle button click
     document.getElementById('reset-btn').onclick = async () => {
       const newPassword = document.getElementById('new-password').value;
       const confirmPassword = document.getElementById('confirm-password').value;
+      const messageDiv = document.getElementById('message');
 
-      if (!newPassword || !confirmPassword) return alert('Enter both fields');
-      if (newPassword !== confirmPassword) return alert('Passwords do not match');
+      messageDiv.style.color = 'red';
 
-      // 3️⃣ Call Supabase API to update password using token
+      if (!newPassword || !confirmPassword) {
+        messageDiv.textContent = 'Please fill out both fields.';
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        messageDiv.textContent = 'Passwords do not match.';
+        return;
+      }
+
+      if (!accessToken) {
+        messageDiv.textContent = 'Invalid or missing token.';
+        return;
+      }
+
+      // 4️⃣ Update password in Supabase
       const { data, error } = await supabase.auth.updateUser({
         accessToken,
         password: newPassword
       });
 
       if (error) {
-        document.getElementById('message').textContent = error.message;
+        messageDiv.textContent = error.message;
       } else {
-        document.getElementById('message').textContent = 'Password updated successfully!';
+        messageDiv.style.color = 'green';
+        messageDiv.textContent = 'Password updated successfully!';
       }
     };
   </script>
+
 </body>
 </html>
